@@ -64,6 +64,7 @@ extension RegisterViewController{
                                 .document(newUser.email.lowercased())
         // set the data
         collectionUser.setData([
+            "name": newUser.name,
             "email": newUser.email.lowercased(),
         ]) { error in
             if let error = error {

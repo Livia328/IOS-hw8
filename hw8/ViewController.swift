@@ -113,6 +113,8 @@ class ViewController: UIViewController {
             startNewChat(emailToChat: selectedEmail)
             let chatViewController = ChatViewController()
             self.navigationController?.pushViewController(chatViewController, animated: true)
+            // reload the chat list
+            self.mainScreen.tableViewContacts.reloadData()
         }
         
         // otherwise start a new chat,
@@ -130,6 +132,10 @@ class ViewController: UIViewController {
         }
         let participants = [emailToChat, currentUserEmail]
         let newChat = Chat(participants: participants)
+        
+        // append to chatsList
+        chatsList.append(newChat)
+        
         var key = ""
         if emailToChat < currentUserEmail {
             key = emailToChat + currentUserEmail
