@@ -19,4 +19,13 @@ struct Message: Codable{
         self.text = text
         self.time = time
     }
+    
+    func dictionaryRepresentation() -> [String: Any] {
+        return [
+            "sender": sender,
+            "receiver": receiever,
+            "text": text,
+            "time": time.timeIntervalSince1970
+        ]
+    }
 }

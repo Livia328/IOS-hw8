@@ -17,4 +17,9 @@ struct Chat: Codable{
         self.participants = participants
         self.messages = []
     }
+    
+    init(participants: [String], messages: [Message]) {
+        self.participants = participants
+        self.messages = messages
+    }
 }
