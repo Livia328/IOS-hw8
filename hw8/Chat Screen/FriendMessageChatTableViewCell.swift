@@ -45,7 +45,7 @@ class FriendMessageChatTableViewCell: UITableViewCell {
         labelSenderName.font = UIFont.boldSystemFont(ofSize: 14)
         labelSenderName.textColor = .darkGray
         labelSenderName.translatesAutoresizingMaskIntoConstraints = false
-        wrapperCellView.addSubview(labelSenderName)
+        contentView.addSubview(labelSenderName)
     }
     
     func setupLabelMessage(){
@@ -67,22 +67,24 @@ class FriendMessageChatTableViewCell: UITableViewCell {
     func initConstraints() {
         // Set up your constraints here
         NSLayoutConstraint.activate([
-            wrapperCellView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+
+            labelSenderName.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            labelSenderName.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            
+            wrapperCellView.topAnchor.constraint(equalTo: labelSenderName.bottomAnchor, constant: 8),
             wrapperCellView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            wrapperCellView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            wrapperCellView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             wrapperCellView.widthAnchor.constraint(lessThanOrEqualToConstant: 250),
-            
-            labelSenderName.topAnchor.constraint(equalTo: wrapperCellView.topAnchor, constant: 8),
-            labelSenderName.leadingAnchor.constraint(equalTo: wrapperCellView.leadingAnchor, constant: 8),
-            
-            labelMessage.topAnchor.constraint(equalTo: labelSenderName.bottomAnchor, constant: 4),
+
+            labelMessage.topAnchor.constraint(equalTo: wrapperCellView.topAnchor, constant: 4),
             labelMessage.leadingAnchor.constraint(equalTo: wrapperCellView.leadingAnchor, constant: 8),
             labelMessage.trailingAnchor.constraint(equalTo: wrapperCellView.trailingAnchor, constant: -8),
-            
+
             labelTime.topAnchor.constraint(equalTo: labelMessage.bottomAnchor, constant: 4),
             labelTime.leadingAnchor.constraint(equalTo: wrapperCellView.leadingAnchor, constant: 8),
             labelTime.bottomAnchor.constraint(equalTo: wrapperCellView.bottomAnchor, constant: -8)
         ])
     }
+
 
 }

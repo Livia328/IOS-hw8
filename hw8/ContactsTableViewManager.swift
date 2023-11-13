@@ -47,8 +47,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // open the chatView Screen
         let chatViewController = ChatViewController()
-        chatViewController.messagesList = chatsList[indexPath.row].messages
-        
+        // chatViewController.messagesList = chatsList[indexPath.row].messages
+        chatViewController.currentUser = self.currentUser
         navigationController?.pushViewController(chatViewController, animated: true)
     }
 }

@@ -69,6 +69,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         title = "My Chats"
+        print("current User in view Controller")
+        print(currentUser)
         getAllChats()
         
         //MARK: Make the titles look large...

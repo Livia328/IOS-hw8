@@ -17,13 +17,22 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let message = messagesList[indexPath.row]
-        let reuseIdentifier: String
+        print(currentUser?.email)
         if message.sender == currentUser?.email {
-            reuseIdentifier = "myMessage"
+            print("myMessage setting...")
+            let cell = tableView.dequeueReusableCell(withIdentifier: "myMessage", for: indexPath) as! MyMessageChatTableViewCell
+            cell.labelSenderName.text = message.sender
+            cell.labelMessage.text = message.text
+            cell.labelTime.text = formatDate(message.time)
+            return cell
         } else {
-            reuseIdentifier = "friendMessage"
+            print("friendMessage setting...")
+            let cell = tableView.dequeueReusableCell(withIdentifier: "friendMessage", for: indexPath) as! FriendMessageChatTableViewCell
+            cell.labelSenderName.text = message.sender
+            cell.labelMessage.text = message.text
+            cell.labelTime.text = formatDate(message.time)
+            return cell
         }
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! UITableViewCell
-        return cell
     }
+
 }
