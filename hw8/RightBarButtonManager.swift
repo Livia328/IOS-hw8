@@ -105,6 +105,7 @@ extension ViewController{
         logoutAlert.addAction(UIAlertAction(title: "Yes, log out!", style: .default, handler: {(_) in
                 do{
                     try Auth.auth().signOut()
+                    self.notificationCenter.post(name: .userLoggedout, object: nil)
                 }catch{
                     print("Error occured!")
                 }
@@ -123,6 +124,7 @@ extension ViewController{
             if error == nil{
                 //MARK: user authenticated...
                 //MARK: can you hide the progress indicator here?
+                self.notificationCenter.post(name: .userLoggedin, object: nil)
             }else{
                 //MARK: alert that no user found or password wrong...
             }

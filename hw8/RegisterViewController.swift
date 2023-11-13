@@ -13,6 +13,7 @@ class RegisterViewController: UIViewController {
 
     let registerView = RegisterView()
     let childProgressView = ProgressSpinnerViewController()
+    let notificationCenter = NotificationCenter.default
     
     override func loadView() {
         view = registerView
@@ -27,6 +28,8 @@ class RegisterViewController: UIViewController {
     @objc func onRegisterTapped(){
         //MARK: creating a new user on Firebase...
         registerNewAccount()
+        // notice the mainscreen that user registered
+        self.notificationCenter.post(name: .userRegistered, object: nil)
     }
 }
 

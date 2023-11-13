@@ -30,6 +30,7 @@ class ViewController: UIViewController {
     
     override func loadView() {
         view = mainScreen
+        getAllChats()
     }
     
     // lifecycle method, handle the logic before the screen is loaded.
@@ -46,8 +47,7 @@ class ViewController: UIViewController {
                 self.mainScreen.floatingButtonAddContact.isHidden = true
                 
                 //MARK: Reset tableView...
-                self.chatsList.removeAll()
-                self.mainScreen.tableViewContacts.reloadData()
+                self.getAllChats()
                 
                 // determine which button to show on the right corner
                 self.setupRightBarButton(isLoggedin: false)
@@ -69,6 +69,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         title = "My Chats"
+        getAllChats()
         
         //MARK: Make the titles look large...
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -88,6 +89,46 @@ class ViewController: UIViewController {
         
         // select the name to start a new chat
         observeNameSelected()
+        
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(updatedUserRegistered(_:)),
+            name: .userRegistered,
+            object: nil)
+        
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(updatedUserLoggedIn(_:)),
+            name: .userLoggedin,
+            object: nil)
+        
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(updatedUserLoggedout(_:)),
+            name: .userLoggedout,
+            object: nil)
+        
+        
+    }
+    
+    @objc func updatedUserRegistered(_ notification: Notification) {
+        print("Notification center triggered -- UserRegistered")
+        // update the view
+        loadView()
+    }
+    
+    @objc func updatedUserLoggedIn(_ notification: Notification) {
+        print("Notification center triggered -- UserLoggedIn")
+        // update the view
+        loadView()
+    }
+    
+    @objc func updatedUserLoggedout(_ notification: Notification) {
+        print("Notification center triggered -- UserLoggedOut")
+        currentUser = nil
+        self.chatsList.removeAll()
+        self.mainScreen.tableViewContacts.reloadData()
+        loadView()
     }
     
     func observeNameSelected(){
@@ -109,62 +150,211 @@ class ViewController: UIViewController {
                 showAlert(text: "Can't choosing yourself, please choose another user")
             }
             
-            // if there is already the chat, open it
-            startNewChat(emailToChat: selectedEmail)
+            // 查找是否存在这个chat
+            var key = ""
+            guard let currentUserEmail = currentUser?.email else {
+                return
+            }
+            if selectedEmail < currentUserEmail {
+                key = selectedEmail + currentUserEmail
+            } else {
+                key = currentUserEmail + selectedEmail
+            }
             let chatViewController = ChatViewController()
+            
+            getChatIfExists(key: key, currentUserEmail: currentUserEmail) { chat in
+                if let chat = chat {
+                    // The chat object exists
+                    chatViewController.messagesList = chat.messages
+                } else {
+                    // The chat object doesn't exist
+//                    self.startNewChat(emailToChat: selectedEmail)
+                    self.startNewChat(emailToChat: selectedEmail) { result in
+                        switch result {
+                        case .success:
+                            // reload the chat list
+                            print("Chat created successfully")
+                            self.getAllChats()
+                            self.mainScreen.tableViewContacts.reloadData()
+                        case .failure(let error):
+                            print("Error creating chat: \(error.localizedDescription)")
+                        }
+                    }
+                }
+            }
             self.navigationController?.pushViewController(chatViewController, animated: true)
-            // reload the chat list
-            self.mainScreen.tableViewContacts.reloadData()
         }
         
         // otherwise start a new chat,
             // append it to the table view in the main screen
             // pop up the
 
-        
     }
     
-    // start a new chat between the current user with selected user
-    func startNewChat(emailToChat: String) {
+    func getAllChats() {
         guard let currentUserEmail = currentUser?.email else {
-            showAlert(text: "Can't find current user")
             return
         }
+        print("Get All Chats executed")
+        getAllChatsFromFireBase(forUserEmail: currentUserEmail) { chats in
+            self.chatsList = chats
+            self.mainScreen.tableViewContacts.reloadData()
+        }
+        print(chatsList)
+    }
+    
+    func getAllChatsFromFireBase(forUserEmail userEmail: String, completion: @escaping ([Chat]) -> Void) {
+        print("getAllChatsFromFireBase")
+        db.collection("users")
+            .document(userEmail)
+            .collection("chats")
+            .getDocuments { (querySnapshot, error) in
+                if let error = error {
+                    print("Error getting documents: \(error)")
+                    completion([])
+                } else {
+                    var chats: [Chat] = []
+
+                    for document in querySnapshot?.documents ?? [] {
+                        do {
+                            if let chatReference = document.get("chatReference") as? DocumentReference {
+                                // Fetch the chat using the reference
+                                chatReference.getDocument { (chatSnapshot, chatError) in
+                                    if let chatError = chatError {
+                                        print("Error getting chat document: \(chatError)")
+                                    } else if let chatDocument = chatSnapshot, chatDocument.exists {
+                                        // Parse the chat document into your Chat model
+                                        if let chat = try? chatDocument.data(as: Chat.self) {
+                                            chats.append(chat)
+                                        }
+                                    }
+                                    completion(chats)
+                                }
+                            }
+                        } catch {
+                            print("Error parsing document: \(error)")
+                            // Handle the error, e.g., log it or ignore the document
+                        }
+                    }
+
+                    completion(chats)
+                }
+            }
+    }
+
+
+
+    
+    // check whether this chatID exist in the firebase
+    func getChatIfExists(key: String, currentUserEmail: String, completion: @escaping (Chat?) -> Void) {
+        db.collection("users")
+            .document(currentUserEmail)
+            .collection("chats")
+            .document(key)
+            .getDocument { (document, error) in
+                if let error = error {
+                    print("Error getting document: \(error)")
+                    completion(nil)
+                } else if let document = document, document.exists {
+                    do {
+                        let chat = try document.data(as: Chat.self)
+                        completion(chat)
+                    } catch {
+                        print("Error parsing document: \(error)")
+                        completion(nil)
+                    }
+                } else {
+                    // Document doesn't exist
+                    completion(nil)
+                }
+            }
+    }
+
+
+    
+    // start a new chat between the current user with selected user
+//    func startNewChat(emailToChat: String) {
+//        guard let currentUserEmail = currentUser?.email else {
+//            showAlert(text: "Can't find current user")
+//            return
+//        }
+//        let participants = [emailToChat, currentUserEmail]
+//        let newChat = Chat(participants: participants)
+//
+//        // append to chatsList
+//        chatsList.append(newChat)
+//
+//        var key = ""
+//        if emailToChat < currentUserEmail {
+//            key = emailToChat + currentUserEmail
+//        } else {
+//            key = currentUserEmail + emailToChat
+//        }
+//
+//        do {
+//            let chatRef = db.collection("chats").document(key)
+//            try chatRef.setData(from: newChat, completion: {(error) in
+//                if error == nil {
+//                    print("New chat created ")
+//                    // add the chat to the users document
+//                    for email in participants {
+//                        self.db
+//                            .collection("users")
+//                            .document(email)
+//                            .collection("chats")
+//                            .document(key)
+//                            .setData(["chatReference": chatRef])
+//                    }
+//                }
+//            })
+//        } catch {
+//            print("Error creating chat object: \(error.localizedDescription)")
+//            showAlert(text: "Failed to create a new chat")
+//        }
+//    }
+    
+    func startNewChat(emailToChat: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let currentUserEmail = currentUser?.email else {
+            showAlert(text: "Can't find the current user")
+            completion(.failure(NSError(domain: "YourDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "Can't find the current user"])))
+            return
+        }
+
         let participants = [emailToChat, currentUserEmail]
         let newChat = Chat(participants: participants)
-        
-        // append to chatsList
+
+        // Append to chatsList
         chatsList.append(newChat)
-        
+
         var key = ""
         if emailToChat < currentUserEmail {
             key = emailToChat + currentUserEmail
         } else {
             key = currentUserEmail + emailToChat
         }
-        
+
         do {
             let chatRef = db.collection("chats").document(key)
-            try chatRef.setData(from: newChat, completion: {(error) in
-                if error == nil {
-                    print("New chat created ")
-                    // add the chat to the users document
+            try chatRef.setData(from: newChat, completion: { error in
+                if let error = error {
+                    print("Error creating chat object: \(error.localizedDescription)")
+                    completion(.failure(error))
+                } else {
+                    print("New chat created")
+                    // Add the chat to the users' document
                     for email in participants {
-                        self.db
-                            .collection("users")
-                            .document(email)
-                            .collection("chats")
-                            .document(key)
-                            .setData(["chatReference": chatRef])
+                        self.db.collection("users").document(email).collection("chats").document(key).setData(["chatReference": chatRef])
                     }
+                    completion(.success(()))
                 }
             })
         } catch {
             print("Error creating chat object: \(error.localizedDescription)")
             showAlert(text: "Failed to create a new chat")
+            completion(.failure(error))
         }
-        
     }
+
     
     func showAlert(text:String){
         let alert = UIAlertController(

@@ -8,4 +8,7 @@
 import Foundation
 extension Notification.Name{
     static let startChatNameSelected = Notification.Name("startChatNameSelected")
+    static let userRegistered = Notification.Name("userRegistered")
+    static let userLoggedin = Notification.Name("userLoggedin")
+    static let userLoggedout = Notification.Name("userLoggedout")
 }
