@@ -30,7 +30,7 @@ class FriendMessageChatTableViewCell: UITableViewCell {
     
     func setupWrapperCellView(){
         wrapperCellView = UIView()
-        wrapperCellView.backgroundColor = .green
+        wrapperCellView.backgroundColor = .white
         wrapperCellView.layer.cornerRadius = 6.0
         wrapperCellView.layer.shadowColor = UIColor.gray.cgColor
         wrapperCellView.layer.shadowOffset = .zero
