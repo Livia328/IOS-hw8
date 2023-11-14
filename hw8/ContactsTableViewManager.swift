@@ -62,6 +62,44 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
             friendEmail = email
         }
         chatViewController.friendEmail = friendEmail
-        navigationController?.pushViewController(chatViewController, animated: true)
+        
+        db.collection("users").document(friendEmail).getDocument { (document, error) in
+            if let error = error {
+                print("Error getting document: \(error)")
+            } else if let document = document, document.exists {
+                let friendName = document["name"] as? String ?? "Unknown"
+                chatViewController.friendName = friendName
+                self.navigationController?.pushViewController(chatViewController, animated: true)
+            } else {
+                print("Document does not exist")
+            }
+        }
     }
+    
+//    func getNameAccordingEmail(completion: @escaping (String?) -> Void) {
+//        let usersCollection = db.collection("users")
+//
+//        usersCollection.getDocuments { (querySnapshot, error) in
+//            if let error = error {
+//                print("Error getting documents: \(error)")
+//                completion(nil) // Return nil in case of error
+//            } else {
+//                for document in querySnapshot!.documents {
+//                    do {
+//                        // Extracting user data
+//                        let userData = document.data()
+//
+//                        if let userName = userData["name"] as? String {
+//                            completion(userName) // Call completion with the extracted name
+//                            return // Exit the loop after finding the name
+//                        } else {
+//                            print("User data does not contain a name")
+//                            completion(nil) // Return nil if name not found
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+
 }

@@ -13,14 +13,14 @@ import FirebaseFirestoreSwift
 
 extension RegisterViewController{
     
-    func registerNewAccount(){
+    func registerNewAccount(email: String, name: String, password: String){
         //MARK: display the progress indicator...
         showActivityIndicator()
         //MARK: create a Firebase user with email and password...
-        if let name = registerView.textFieldName.text,
-           let email = registerView.textFieldEmail.text,
-           let password = registerView.textFieldPassword.text{
-            //Validations....
+//        if let name = registerView.textFieldName.text,
+//           let email = registerView.textFieldEmail.text,
+//           let password = registerView.textFieldPassword.text{
+//            //Validations....
             Auth.auth().createUser(withEmail: email, password: password, completion: {result, error in
                 if error == nil{
                     //MARK: the user creation is successful...
@@ -34,7 +34,7 @@ extension RegisterViewController{
                     print(error)
                 }
             })
-        }
+//        }
     }
     
     //MARK: We set the name of the user after we create the account...

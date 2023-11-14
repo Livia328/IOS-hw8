@@ -11,6 +11,7 @@ class RegisterView: UIView {
     var textFieldName: UITextField!
     var textFieldEmail: UITextField!
     var textFieldPassword: UITextField!
+    var textFieldRepeatPassword: UITextField!
     var buttonRegister: UIButton!
     
     override init(frame: CGRect){
@@ -19,6 +20,7 @@ class RegisterView: UIView {
         setuptextFieldName()
         setuptextFieldEmail()
         setuptextFieldPassword()
+        setuptextFieldRepeatPassword()
         setupbuttonRegister()
         
         initConstraints()
@@ -52,6 +54,16 @@ class RegisterView: UIView {
         self.addSubview(textFieldPassword)
     }
     
+    func setuptextFieldRepeatPassword() {
+        textFieldRepeatPassword = UITextField()
+        textFieldRepeatPassword.placeholder = "Repeat Password"
+        textFieldRepeatPassword.textContentType = .password
+        textFieldRepeatPassword.isSecureTextEntry = true
+        textFieldRepeatPassword.borderStyle = .roundedRect
+        textFieldRepeatPassword.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(textFieldRepeatPassword)
+    }
+    
     func setupbuttonRegister(){
         buttonRegister = UIButton(type: .system)
         buttonRegister.setTitle("Register", for: .normal)
@@ -74,7 +86,11 @@ class RegisterView: UIView {
             textFieldPassword.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
             textFieldPassword.widthAnchor.constraint(equalTo: self.safeAreaLayoutGuide.widthAnchor, multiplier: 0.9),
             
-            buttonRegister.topAnchor.constraint(equalTo: textFieldPassword.bottomAnchor, constant: 32),
+            textFieldRepeatPassword.topAnchor.constraint(equalTo: textFieldPassword.bottomAnchor, constant: 16),
+            textFieldRepeatPassword.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
+            textFieldRepeatPassword.widthAnchor.constraint(equalTo: self.safeAreaLayoutGuide.widthAnchor, multiplier: 0.9),
+              
+            buttonRegister.topAnchor.constraint(equalTo: textFieldRepeatPassword.bottomAnchor, constant: 32),
             buttonRegister.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
         ])
     }

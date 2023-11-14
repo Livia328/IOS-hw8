@@ -18,6 +18,7 @@ class ChatViewController: UIViewController {
     var participants = [String]()
     
     var friendEmail = ""
+    var friendName = ""
     
     let db = Firestore.firestore()
     
@@ -53,6 +54,7 @@ class ChatViewController: UIViewController {
     
     @objc func onButtonAddTapped() {
         guard let currentUserEmail = currentUser?.email else {
+            print(currentUser)
             print("Can't find current user")
             return
         }

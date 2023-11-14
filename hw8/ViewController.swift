@@ -184,7 +184,23 @@ class ViewController: UIViewController {
                     }
                 }
             }
-            self.navigationController?.pushViewController(chatViewController, animated: true)
+            // send needed data to the chatViewController
+            // message list is empty
+            chatViewController.currentUser = self.currentUser
+            let participants = [selectedEmail, currentUserEmail]
+            chatViewController.participants = participants
+            chatViewController.friendEmail = selectedEmail
+            db.collection("users").document(selectedEmail).getDocument { (document, error) in
+                if let error = error {
+                    print("Error getting document: \(error)")
+                } else if let document = document, document.exists {
+                    let friendName = document["name"] as? String ?? "Unknown"
+                    chatViewController.friendName = friendName
+                    self.navigationController?.pushViewController(chatViewController, animated: true)
+                } else {
+                    print("Document does not exist")
+                }
+            }
         }
         
         // otherwise start a new chat,

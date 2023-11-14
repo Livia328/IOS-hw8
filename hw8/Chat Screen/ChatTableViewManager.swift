@@ -19,20 +19,34 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource{
         let message = messagesList[indexPath.row]
         print(currentUser?.email)
         if message.sender == currentUser?.email {
-            print("myMessage setting...")
             let cell = tableView.dequeueReusableCell(withIdentifier: "myMessage", for: indexPath) as! MyMessageChatTableViewCell
-            cell.labelSenderName.text = message.sender
+            cell.labelSenderName.text = currentUser?.displayName
             cell.labelMessage.text = message.text
             cell.labelTime.text = formatDate(message.time)
             return cell
         } else {
-            print("friendMessage setting...")
             let cell = tableView.dequeueReusableCell(withIdentifier: "friendMessage", for: indexPath) as! FriendMessageChatTableViewCell
-            cell.labelSenderName.text = message.sender
+            cell.labelSenderName.text = friendName
             cell.labelMessage.text = message.text
             cell.labelTime.text = formatDate(message.time)
             return cell
         }
     }
+    
+//    func getNameAccordingToEmail(email: String, completion: @escaping (String?) -> Void) {
+//        db.collection("users").document(email).getDocument { (document, error) in
+//            if let error = error {
+//                print("Error getting document: \(error)")
+//                completion(nil)
+//            } else if let document = document, document.exists {
+//                let friendName = document["name"] as? String ?? "Unknown"
+//                completion(friendName)
+//            } else {
+//                print("Document does not exist")
+//                completion(nil)
+//            }
+//        }
+//    }
+
 
 }
