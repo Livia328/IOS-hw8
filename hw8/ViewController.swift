@@ -110,6 +110,12 @@ class ViewController: UIViewController {
             name: .userLoggedout,
             object: nil)
         
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(messageUpdated(_:)),
+            name: .messageUpdated,
+            object: nil)
+        
         
     }
     
@@ -131,6 +137,10 @@ class ViewController: UIViewController {
         self.chatsList.removeAll()
         self.mainScreen.tableViewContacts.reloadData()
         loadView()
+    }
+    
+    @objc func messageUpdated(_ notification: Notification) {
+        getAllChats()
     }
     
     func observeNameSelected(){

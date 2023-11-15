@@ -21,6 +21,7 @@ class ChatViewController: UIViewController {
     var friendName = ""
     
     let db = Firestore.firestore()
+    let notificationCenter = NotificationCenter.default
     
     override func loadView() {
         view = chatView
@@ -85,6 +86,9 @@ class ChatViewController: UIViewController {
                 print("Message updated successfully")
                 self.clearTextField()
                 self.showPreviousChat()
+                // notify main screen chat messages is updated
+                self.notificationCenter.post(name: .messageUpdated, object: nil)
+                
             case .failure(let error):
                 print("Error updating message: \(error.localizedDescription)")
             }
